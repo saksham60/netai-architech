@@ -1,0 +1,33 @@
+{
+  "name": "netai-architect",
+  "version": "1.0.0",
+  "description": "Advanced GenAI Network Architecture Design Tool",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "build": "echo 'No build step required for static frontend'",
+    "test": "echo 'Tests not implemented yet'"
+  },
+  "keywords": [
+    "network",
+    "architecture",
+    "genai",
+    "ai",
+    "cisco",
+    "juniper",
+    "arista",
+    "sdn",
+    "automation"
+  ],
+  "author": "NetAI Architect Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
