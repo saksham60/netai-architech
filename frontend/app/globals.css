@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
 :root {
+  --font-space-grotesk: "Inter", "Helvetica Neue", Arial, system-ui, -apple-system,
+    sans-serif;
+  --font-jetbrains-mono: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
   --background: #f6f7fb;
   --foreground: #0f172a;
   --surface: #ffffff;
