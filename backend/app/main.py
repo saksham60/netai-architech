@@ -10,27 +10,6 @@ from app.llm.factory import get_llm_adapter
 from app.models import DiagramRequest, DiagramResponse
 
 
-def _mermaid_html(mermaid_code: str) -> str:
-    return (
-        "<!DOCTYPE html>"
-        "<html lang='en'>"
-        "<head>"
-        "<meta charset='utf-8' />"
-        "<meta name='viewport' content='width=device-width, initial-scale=1' />"
-        "<script src='https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js'></script>"
-        "</head>"
-        "<body>"
-        "<div class='mermaid'>"
-        f"{mermaid_code}"
-        "</div>"
-        "<script>"
-        "mermaid.initialize({ startOnLoad: true });"
-        "</script>"
-        "</body>"
-        "</html>"
-    )
-
-
 app = FastAPI(title="NetAI Architect Backend")
 app.add_middleware(
     CORSMiddleware,
@@ -67,7 +46,6 @@ def analyze_architecture(request: DiagramRequest):
     return DiagramResponse(
         mermaid=mermaid,
         summary=summary,
-        render_html=_mermaid_html(mermaid),
     )
 
 

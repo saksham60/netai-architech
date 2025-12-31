@@ -12,4 +12,3 @@ class DiagramRequest(BaseModel):
 class DiagramResponse(BaseModel):
     mermaid: str
     summary: str
-    render_html: str

@@ -30,7 +30,8 @@ type MermaidAPI = {
 };
 
 const API_BASE_DEFAULT =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3001";
+  process.env.NEXT_PUBLIC_API_BASE || "https://netai-architech.onrender.com";
+// const API_BASE_DEFAULT = "http://localhost:3001";
 
 const equipmentDatabase: Record<string, EquipmentItem[]> = {
   "Core Routing": [
@@ -403,7 +404,7 @@ export default function Home() {
         ...prev,
         {
           role: "ai",
-          text: "Unable to reach the backend. Make sure FastAPI is running on port 3001.",
+          text: "Unable to reach the backend. Check the API base URL or restart the service.",
         },
       ]);
     } finally {
@@ -776,7 +777,7 @@ export default function Home() {
                 value={apiDraft}
                 onChange={(event) => setApiDraft(event.target.value)}
                 className="mt-3 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs"
-                placeholder="http://localhost:3001"
+                placeholder="https://netai-architech.onrender.com"
               />
               <button
                 onClick={saveApiBase}

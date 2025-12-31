@@ -18,10 +18,12 @@ SYSTEM_PROMPT = (
     "You are a senior network architect. Generate a clear Mermaid flowchart diagram "
     "for the requested network architecture. Use industry-standard components and "
     "labels (edge routers, firewalls, load balancers, app tiers, databases, monitoring). "
-    "Prefer flowchart LR or TB. IMPORTANT: all node IDs must be unique across the "
-    "entire diagram. Use distinct prefixes per section (e.g., DC_, BO_, WAN_, WIFI_) "
-    "so IDs never repeat. Do not use Mermaid port syntax like node:port. "
-    "Return only Mermaid code without fences."
+    "Prefer flowchart LR or TB. Keep the diagram concise (about 30 nodes max) and "
+    "avoid repeating identical blocks across multiple subgraphs. Do not include "
+    "interface labels on links (e.g., Ethernet 1/1). IMPORTANT: all node IDs must be "
+    "unique across the entire diagram. Use distinct prefixes per section (e.g., DC_, "
+    "BO_, WAN_, WIFI_) so IDs never repeat. Do not use Mermaid port syntax like "
+    "node:port. Return only Mermaid code without fences."
 )
 
 _NODE_DEF_RE = re.compile(r"(?P<id>[A-Za-z_][A-Za-z0-9_]*)\s*(\(|\[|\{)")
@@ -76,6 +78,32 @@ def _strip_ports(mermaid: str) -> str:
     return re.sub(r"(?<=\\w):\\w+\\b", "", mermaid)
 
 
+def _strip_edge_labels(mermaid: str) -> str:
+    return re.sub(r"-->\|[^|]*\|>", "-->", mermaid)
+
+
+def _sanitize_mermaid(mermaid: str) -> str:
+    lines = [line.rstrip() for line in mermaid.splitlines() if line.strip()]
+
+    def has_unbalanced_brackets(line: str) -> bool:
+        pairs = [("[", "]"), ("(", ")"), ("{", "}")]
+        return any(line.count(open_c) > line.count(close_c) for open_c, close_c in pairs)
+
+    while lines and has_unbalanced_brackets(lines[-1]):
+        lines.pop()
+
+    open_subgraphs = 0
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("subgraph"):
+            open_subgraphs += 1
+        elif stripped == "end" and open_subgraphs > 0:
+            open_subgraphs -= 1
+
+    lines.extend(["end"] * open_subgraphs)
+    return "\n".join(lines).strip()
+
+
 def _build_user_prompt(state: DiagramState) -> str:
     constraints = "\n".join(f"- {item}" for item in state.get("constraints", []))
     extra_context = state.get("context", "")
@@ -94,7 +122,9 @@ def _build_user_prompt(state: DiagramState) -> str:
 def _generate_diagram(state: DiagramState, llm: LLMAdapter) -> DiagramState:
     user_prompt = _build_user_prompt(state)
     response = llm.generate(SYSTEM_PROMPT, user_prompt)
-    mermaid = _strip_ports(_dedupe_ids(response.content))
+    mermaid = _sanitize_mermaid(
+        _strip_edge_labels(_strip_ports(_dedupe_ids(response.content)))
+    )
     summary = (
         "Generated a network architecture diagram with industry-standard layers "
         "based on the provided requirements."
